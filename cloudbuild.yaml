@@ -1,3 +1,6 @@
+# Specify the logs bucket at the top level
+logsBucket: gs://cloudbuildbk
+
 steps:
   # Build Docker image and tag it with the commit SHA
   - name: 'gcr.io/cloud-builders/docker'
@@ -19,4 +22,3 @@ steps:
 # Adding logging configuration
 options:
   logging: CLOUD_LOGGING_ONLY
-  logsBucket: gs://cloudbuildbk
