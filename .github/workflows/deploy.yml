@@ -29,7 +29,11 @@ jobs:
 
       - name: Authenticate Docker to Google Container Registry
         run: |
+<<<<<<< HEAD
           echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 --decode > /tmp/keyfile.json
+=======
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/keyfile.json
+>>>>>>> 5c96ff6 (remove  Base64 Decoding)
           gcloud auth activate-service-account --key-file=/tmp/keyfile.json
           gcloud auth configure-docker gcr.io
 
