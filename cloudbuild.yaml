@@ -1,4 +1,16 @@
 steps:
+  # Authenticate and configure kubectl to use the correct cluster
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'container'
+      - 'clusters'
+      - 'get-credentials'
+      - 'app-cluster'  # Name of your cluster
+      - '--region'
+      - 'me-central1'  # Your region
+      - '--project'
+      - '$PROJECT_ID'
+
   # Build Docker image and tag it with the commit SHA
   - name: 'gcr.io/cloud-builders/docker'
     args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-python-app:$COMMIT_SHA', '.']
@@ -16,6 +28,6 @@ steps:
         kubectl set image deployment/my-python-app my-python-app=gcr.io/$PROJECT_ID/my-python-app:$COMMIT_SHA
         kubectl rollout status deployment/my-python-app
 
-# Adding logging configuration
+# Options
 options:
   logging: CLOUD_LOGGING_ONLY
