@@ -17,7 +17,7 @@ spec:
         - name: my-python-app
           image: gcr.io/primeval-creek-424606-j8/my-python-app:latest  
           ports:
-            - containerPort: 5000  
+            - containerPort: 8080  
           env:
             - name: ENV_VAR_NAME  # Example environment variable, if needed
               value: "value"
