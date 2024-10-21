@@ -1,0 +1,46 @@
+name: CI Pipeline
+
+# Trigger this workflow on push to main branch
+on:
+  push:
+    branches:
+      - main
+
+# Define the jobs
+jobs:
+  build-and-push:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the code from the repository
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Google Cloud SDK to authenticate Docker with GCR or Artifact Registry
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}  # Set this secret in GitHub repo
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set this secret in GitHub repo
+        export_default_credentials: true
+
+    # Step 3: Authenticate Docker to push images to GCR or Artifact Registry
+    - name: Authenticate Docker to GCR
+      run: |
+        gcloud auth configure-docker
+
+    # Step 4: Build the Docker image
+    - name: Build Docker image
+      run: |
+        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} .
+
+    # Step 5: Push the Docker image to GCR or Artifact Registry
+    - name: Push Docker image
+      run: |
+        docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }}
+
+    # Step 6: Optional - clean up local Docker images
+    - name: Clean up Docker
+      run: |
+        docker rmi gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} || true
