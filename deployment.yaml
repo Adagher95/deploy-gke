@@ -1,4 +1,3 @@
-# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,10 +14,9 @@ spec:
     spec:
       containers:
         - name: my-python-app
-          image: gcr.io/primeval-creek-424606-j8/my-python-app:latest  
+          image: gcr.io/dauntless-gate-436918-t0/my-python-app:latest  
           ports:
             - containerPort: 8080  
           env:
             - name: ENV_VAR_NAME  # Example environment variable, if needed
               value: "value"
-
