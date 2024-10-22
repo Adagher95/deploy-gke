@@ -28,22 +28,32 @@ jobs:
       run: |
         gcloud auth configure-docker
 
-    # Step 4: Build the Docker image
+    # Step 4: Fetch Service Account Key from Vault
+    - name: Fetch Service Account Key from Vault
+      env:
+        VAULT_TOKEN: ${{ secrets.VAULT_TOKEN }}  # Use the Vault token stored in GitHub secrets
+      run: |
+        # Fetch the service account key from Vault
+        export SERVICE_ACCOUNT_KEY=$(vault kv get -field=key secret/service-account)
+        echo $SERVICE_ACCOUNT_KEY > /tmp/service-account-key.json
+        echo "Service account key fetched and stored."
+
+    # Step 5: Build the Docker image
     - name: Build Docker image
       run: |
         docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} .
 
-    # Step 5: Push the Docker image to GCR
+    # Step 6: Push the Docker image to GCR
     - name: Push Docker image
       run: |
         docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }}
 
-    # Step 6: Optional - clean up local Docker images
+    # Step 7: Optional - clean up local Docker images
     - name: Clean up Docker
       run: |
         docker rmi gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} || true
 
-    # Step 7: Notify ArgoCD to sync the application after the Docker image is pushed
+    # Step 8: Notify ArgoCD to sync the application after the Docker image is pushed
     - name: Trigger ArgoCD sync
       run: |
         argocd app sync my-python-app --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }}
