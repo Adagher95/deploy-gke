@@ -35,13 +35,19 @@ jobs:
       run: |
         # Fetch the service account key from Vault
         export SERVICE_ACCOUNT_KEY=$(vault kv get -field=key secret/service-account)
-        echo $SERVICE_ACCOUNT_KEY > /tmp/service-account-key.json
-        echo "Service account key fetched and stored."
+    echo $SERVICE_ACCOUNT_KEY > /tmp/service-account-key.json
+    echo "Service account key fetched and stored."
+    echo "GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}"  # Log the GCP_PROJECT_ID for debugging
 
     # Step 5: Build the Docker image
     - name: Build Docker image
       run: |
-        docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} .
+        PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
+    if [ -z "$PROJECT_ID" ]; then
+      echo "GCP_PROJECT_ID is not set. Please check your GitHub secrets."
+      exit 1
+    fi
+    docker build -t gcr.io/$PROJECT_ID/my-python-app:${{ github.sha }} .
 
     # Step 6: Push the Docker image to GCR
     - name: Push Docker image
