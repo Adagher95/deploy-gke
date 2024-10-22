@@ -5,7 +5,6 @@ on:
     branches:
       - main
 
-# Define the jobs
 jobs:
   build-and-push:
     name: Build and Push Docker Image
@@ -24,7 +23,7 @@ jobs:
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set this secret in GitHub repo
         export_default_credentials: true
 
-    # Step 3: Authenticate Docker to push images to GCR or Artifact Registry
+    # Step 3: Authenticate Docker to push images to GCR
     - name: Authenticate Docker to GCR
       run: |
         gcloud auth configure-docker
@@ -34,7 +33,7 @@ jobs:
       run: |
         docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} .
 
-    # Step 5: Push the Docker image to GCR or Artifact Registry
+    # Step 5: Push the Docker image to GCR
     - name: Push Docker image
       run: |
         docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }}
@@ -43,3 +42,8 @@ jobs:
     - name: Clean up Docker
       run: |
         docker rmi gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} || true
+
+    # Step 7: Notify ArgoCD to sync the application after the Docker image is pushed
+    - name: Trigger ArgoCD sync
+      run: |
+        argocd app sync my-python-app --grpc-web --server ${{ secrets.ARGOCD_SERVER }} --auth-token ${{ secrets.ARGOCD_AUTH_TOKEN }}

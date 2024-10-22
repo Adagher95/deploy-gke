@@ -1,14 +1,13 @@
--# service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-python-app-service
+  name: my-python-app
+  namespace: default
 spec:
   selector:
     app: my-python-app
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080 
-  type: LoadBalancer  # Use LoadBalancer if you want an external IP
-
+      targetPort: 8080
+  type: ClusterIP

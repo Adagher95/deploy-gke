@@ -2,6 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-python-app
+  annotations:
+    vault.hashicorp.com/agent-inject: "true"
+    vault.hashicorp.com/role: "my-role"
+    vault.hashicorp.com/agent-inject-secret-db-credentials: "secret/db-credentials"
+    vault.hashicorp.com/agent-inject-template-db-credentials: |
+      {{- with secret "secret/db-credentials" -}}
+      export DB_USERNAME="{{ .Data.data.username }}"
+      export DB_PASSWORD="{{ .Data.data.password }}"
+      {{- end }}
 spec:
   replicas: 2  
   selector:
@@ -17,6 +26,3 @@ spec:
           image: gcr.io/dauntless-gate-436918-t0/my-python-app:latest  
           ports:
             - containerPort: 8080  
-          env:
-            - name: ENV_VAR_NAME  
-              value: "value"
