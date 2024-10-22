@@ -7,7 +7,7 @@ steps:
       - 'get-credentials'
       - 'app-cluster'  # Name of your cluster
       - '--region'
-      - 'me-central1'  # Your region
+      - 'us-central1'  # Your region
       - '--project'
       - '$PROJECT_ID'
 
