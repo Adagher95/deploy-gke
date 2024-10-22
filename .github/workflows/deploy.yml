@@ -19,7 +19,7 @@ jobs:
       - name: Set up Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}  # Set this secret in GitHub repo
+          project_id: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set this secret in GitHub repo
           service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}  # Set this secret in GitHub repo
           export_default_credentials: true
 
@@ -36,14 +36,14 @@ jobs:
           export SERVICE_ACCOUNT_KEY=$(vault kv get -field=key secret/service-account)
           echo $SERVICE_ACCOUNT_KEY > /tmp/service-account-key.json
           echo "Service account key fetched and stored."
-          echo "GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}"  # Log the GCP_PROJECT_ID for debugging
+          echo "GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}"  # Log the GCP_SERVICE_ACCOUNT_KEY for debugging
 
       # Step 5: Build the Docker image
       - name: Build Docker image
         run: |
-          PROJECT_ID=${{ secrets.GCP_PROJECT_ID }}
+          PROJECT_ID=${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
           if [ -z "$PROJECT_ID" ]; then
-            echo "GCP_PROJECT_ID is not set. Please check your GitHub secrets."
+            echo "GCP_SERVICE_ACCOUNT_KEY is not set. Please check your GitHub secrets."
             exit 1
           fi
           docker build -t gcr.io/$PROJECT_ID/my-python-app:${{ github.sha }} .
@@ -51,12 +51,12 @@ jobs:
       # Step 6: Push the Docker image to GCR
       - name: Push Docker image
         run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }}
+          docker push gcr.io/${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}/my-python-app:${{ github.sha }}
 
       # Step 7: Optional - clean up local Docker images
       - name: Clean up Docker
         run: |
-          docker rmi gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-python-app:${{ github.sha }} || true
+          docker rmi gcr.io/${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}/my-python-app:${{ github.sha }} || true
 
       # Step 8: Notify ArgoCD to sync the application after the Docker image is pushed
       - name: Trigger ArgoCD sync
